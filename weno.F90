@@ -178,6 +178,8 @@ subroutine apply(data, nx, ny, nz, dirn, a_center_xyz)
             end do loopx
         end do loopy
     end do loopz
+
+    !CODE COMMENTED OUT BELOW IS FAULTY
     
     !Now we do have somewhat of a problem. We input an xyz array and output a zyx/yxz array. 
     !Moreover, the direction will define the "local x" here, meaning we will have to rotate the arrays
