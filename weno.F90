@@ -168,10 +168,11 @@ subroutine apply(data, nx, ny, nz, dirn, a_center_xyz)
                 
 
                 !Calculate the reconstruction
-                temp_xyz(i, j, k) = 0
+                temp_xyz(ijk(3, 1), ijk(3,2), ijk(3, 3)) = 0
 
                 looprecon: do p = 1, 5
-                    temp_xyz(i, j, k) = temp_xyz(i, j, k) + ((wplus1 * weno_coeffs_de_avg(1,p) + &
+                    temp_xyz(ijk(3, 1), ijk(3,2), ijk(3, 3)) = &
+                    temp_xyz(ijk(3, 1), ijk(3,2), ijk(3, 3)) + ((wplus1 * weno_coeffs_de_avg(1,p) + &
                     wplus2 * weno_coeffs_de_avg(2,p) + wplus3 * weno_coeffs_de_avg(3,p)) * A(p))
                 end do looprecon
             end do loopx
@@ -188,7 +189,7 @@ subroutine apply(data, nx, ny, nz, dirn, a_center_xyz)
 !            loopx2: do i = 1, nx
 !                loopy2: do j = 1, ny
 !                    loopz2: do k = 1, nz
-!                        a_center_xyz(i, j, k) = temp_xyz(j, i, k)
+!                        a_center_xyz(i, j, k) = temp_xyz(i, j, k)
 !                    end do loopz2
 !                end do loopy2
 !            end do loopx2
@@ -196,12 +197,18 @@ subroutine apply(data, nx, ny, nz, dirn, a_center_xyz)
 !            loopx3: do i = 1, nx
 !                loopy3: do j = 1, ny
 !                    loopz3: do k = 1, nz
-!                        a_center_xyz(i, j, k) = temp_xyz(j, k, i)
+!                        a_center_xyz(i, j, k) = temp_xyz(j, i, k)
 !                    end do loopz3
 !                end do loopy3
 !            end do loopx3
 !        case(2)
-!            a_center_xyz = temp_xyz
+!            loopx7: do i = 1, nx
+!                loopy7: do j = 1, ny
+!                    loopz7: do k = 1, nz
+!                        a_center_xyz(i, j, k) = temp_xyz(k, j, i)
+!                    end do loopz7
+!                end do loopy7
+!            end do loopx7
 !    end select
     a_center_xyz = temp_xyz
     
