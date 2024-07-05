@@ -124,7 +124,7 @@ subroutine apply(data, nx, ny, nz, dirn, a_center_xyz)
                     ijk = reshape((/k, k, k, k, k, j, j, j, j, j, i-2, i-1, i, i+1, i+2/), shape(ijk))
                 end select
 
-                !Again, Cannot define funcitons inside a function in F90, so yet another convoluted way to do something simple
+                !Again, Cannot define functions inside a function in F90, so yet another convoluted way to do something simple
                 A0 = data(ijk(1, 1), ijk(1,2), ijk(1, 3))
                 A1 = data(ijk(2, 1), ijk(2,2), ijk(2, 3))
                 A2 = data(ijk(3, 1), ijk(3,2), ijk(3, 3))
