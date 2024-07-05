@@ -67,7 +67,7 @@ real*8 function fun(x, y, z)
     implicit none
     real*8, intent(in) :: x, y, z
 
-    fun = 2.*x
+    fun = 2.*x + 3. * y + 4. * z
 end function fun
 
 !Apply function as in weno.c++
@@ -178,40 +178,6 @@ subroutine apply(data, nx, ny, nz, dirn, a_center_xyz)
             end do loopx
         end do loopy
     end do loopz
-
-    !CODE COMMENTED OUT BELOW IS FAULTY
-    
-    !Now we do have somewhat of a problem. We input an xyz array and output a zyx/yxz array. 
-    !Moreover, the direction will define the "local x" here, meaning we will have to rotate the arrays
-    !If we have direction=z, I presume everything will be fine, we will get an xyz array. Otherwise, we need to rotate zyx->xyz (dir = 0) and yxz->xyz (dir = 1)
-    !a_center_xyz = 0
-
-!    select case(dirn)
-!        case(0)
-!            loopx2: do i = 1, nx
-!                loopy2: do j = 1, ny
-!                    loopz2: do k = 1, nz
-!                        a_center_xyz(i, j, k) = temp_xyz(i, j, k)
-!                    end do loopz2
-!                end do loopy2
-!            end do loopx2
-!        case(1)
-!            loopx3: do i = 1, nx
-!                loopy3: do j = 1, ny
-!                    loopz3: do k = 1, nz
-!                        a_center_xyz(i, j, k) = temp_xyz(j, i, k)
-!                    end do loopz3
-!                end do loopy3
-!            end do loopx3
-!        case(2)
-!            loopx7: do i = 1, nx
-!                loopy7: do j = 1, ny
-!                    loopz7: do k = 1, nz
-!                        a_center_xyz(i, j, k) = temp_xyz(k, j, i)
-!                    end do loopz7
-!                end do loopy7
-!            end do loopx7
-!    end select
     a_center_xyz = temp_xyz
     
 end subroutine apply
