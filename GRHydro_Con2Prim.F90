@@ -63,6 +63,9 @@ subroutine Conservative2Primitive(CCTK_ARGUMENTS)
   CCTK_REAL, DIMENSION(cctk_ash1,cctk_ash2,cctk_ash3,3) :: vup
   pointer (pvup,vup)
 
+  !Temp data holders for de-averaging
+  CCTK_REAL, DIMENSION(cctk_lsh(1), cctk_lsh(2), cctk_lsh(3)) :: temp1, temp2, dens_avg, tau_avg, scon1_avg, scon2_avg, scon3_avg
+
 ! begin EOS Omni vars
   CCTK_INT  :: n,keytemp,anyerr,keyerr
   CCTK_REAL :: xpress,xeps,xtemp,xye
@@ -98,12 +101,30 @@ subroutine Conservative2Primitive(CCTK_ARGUMENTS)
   nx = cctk_lsh(1)
   ny = cctk_lsh(2)
   nz = cctk_lsh(3)
+
+  !Initialize de-average temps
+  temp1 = 0
+  temp2 = 0
+  dens_avg = 0
+  tau_avg = 0
+  scon1_avg = 0
+  scon2_avg = 0
+  scon3_avg = 0
   
   if (use_min_tracer .ne. 0) then
     local_min_tracer = min_tracer
   else
     local_min_tracer = 0.0d0
   end if
+
+  !call de-averaging step
+  call apply(dens, nx, ny, nz, 0, temp1)
+  call apply(temp1, nx, ny, nz, 1, temp2)
+  call apply(temp2, nx, ny, nz, 2, dens_avg)
+
+  call apply(tau, nx, ny, nz, 0, tau_avg)
+  call apply(tau_avg, nx, ny, nz, 1, tau_avg)
+  call apply(tau_avg, nx, ny, nz, 2, tau_avg)
 
   ! this is a poly call
   call EOS_Omni_press(GRHydro_polytrope_handle,keytemp,GRHydro_eos_rf_prec,n,&
@@ -254,9 +275,10 @@ subroutine Conservative2Primitive(CCTK_ARGUMENTS)
          end if
 
          if(evolve_temper.eq.0) then
+          write (*,*) dens_avg(i, j, k), dens(i, j, k)
             call Con2Prim_pt(int(cctk_iteration,ik),int(i,ik),int(j,ik),int(k,ik),&
-                 GRHydro_eos_handle, dens(i,j,k),scon(i,j,k,1),scon(i,j,k,2), &
-                 scon(i,j,k,3),tau(i,j,k),rho(i,j,k),vup(i,j,k,1),vup(i,j,k,2), &
+                 GRHydro_eos_handle, dens_avg(i,j,k),scon(i,j,k,1),scon(i,j,k,2), &
+                 scon(i,j,k,3),tau_avg(i,j,k),rho(i,j,k),vup(i,j,k,1),vup(i,j,k,2), &
                  vup(i,j,k,3),eps(i,j,k),press(i,j,k),w_lorentz(i,j,k), &
                  uxx,uxy,uxz,uyy,uyz,uzz,sdetg(i,j,k),x(i,j,k),y(i,j,k), &
                  z(i,j,k),r(i,j,k),epsnegative,GRHydro_rho_min,pmin, epsmin, & 
