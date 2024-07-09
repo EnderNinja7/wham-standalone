@@ -294,8 +294,8 @@ subroutine Conservative2Primitive(CCTK_ARGUMENTS)
          if(evolve_temper.eq.0) then
           write (*,*) dens_avg(i, j, k), "=?=", dens(i, j, k)
             call Con2Prim_pt(int(cctk_iteration,ik),int(i,ik),int(j,ik),int(k,ik),&
-                 GRHydro_eos_handle, dens_avg(i,j,k),scon1_avg,scon2_avg, &
-                 scon3_avg,tau_avg(i,j,k),rho(i,j,k),vup(i,j,k,1),vup(i,j,k,2), &
+                 GRHydro_eos_handle, dens_avg(i,j,k),scon1_avg(i,j,k),scon2_avg(i,j,k), &
+                 scon3_avg(i,j,k),tau_avg(i,j,k),rho(i,j,k),vup(i,j,k,1),vup(i,j,k,2), &
                  vup(i,j,k,3),eps(i,j,k),press(i,j,k),w_lorentz(i,j,k), &
                  uxx,uxy,uxz,uyy,uyz,uzz,sdetg(i,j,k),x(i,j,k),y(i,j,k), &
                  z(i,j,k),r(i,j,k),epsnegative,GRHydro_rho_min,pmin, epsmin, & 
