@@ -64,8 +64,8 @@ subroutine Conservative2Primitive(CCTK_ARGUMENTS)
   pointer (pvup,vup)
 
   !Temp data holders for de-averaging
-  CCTK_REAL, DIMENSION(cctk_lsh(1), cctk_lsh(2), cctk_lsh(3)) :: temp1, temp2, temp3, temp4, temp5, temp6, temp7, temp8, temp9, temp10&
-  , temp11, temp12, dens_avg, tau_avg, scon1_avg, scon2_avg, scon3_avg
+  CCTK_REAL, DIMENSION(cctk_lsh(1), cctk_lsh(2), cctk_lsh(3)) :: temp1, temp2, temp3, temp4, temp5, temp6, temp7, temp8&
+  , temp9, temp10, dens_avg, tau_avg, scon1_avg, scon2_avg, scon3_avg
 
 ! begin EOS Omni vars
   CCTK_INT  :: n,keytemp,anyerr,keyerr
@@ -110,6 +110,10 @@ subroutine Conservative2Primitive(CCTK_ARGUMENTS)
   temp4 = 0
   temp5 = 0
   temp6 = 0
+  temp7 = 0
+  temp8 = 0
+  temp9 = 0
+  temp10 = 0
   dens_avg = 0
   tau_avg = 0
   scon1_avg = 0
@@ -121,7 +125,8 @@ subroutine Conservative2Primitive(CCTK_ARGUMENTS)
   else
     local_min_tracer = 0.0d0
   end if
-
+  
+  !
   !call de-averaging step
   call apply(dens, nx, ny, nz, 0, temp1)
   call apply(temp1, nx, ny, nz, 1, temp2)
@@ -131,17 +136,17 @@ subroutine Conservative2Primitive(CCTK_ARGUMENTS)
   call apply(temp3, nx, ny, nz, 1, temp4)
   call apply(temp4, nx, ny, nz, 2, tau_avg)
 
-  call apply(scon(:,:,:,1), nx, ny, nz, 0, temp4)
-  call apply(temp4, nx, ny, nz, 1, temp5)
-  call apply(temp4, nx, ny, nz, 2, scon1_avg)
+  call apply(scon(:,:,:,1), nx, ny, nz, 0, temp5)
+  call apply(temp5, nx, ny, nz, 1, temp6)
+  call apply(temp6, nx, ny, nz, 2, scon1_avg)
 
-  call apply(scon(:,:,:,2), nx, ny, nz, 0, temp6)
-  call apply(temp6, nx, ny, nz, 1, temp7)
-  call apply(temp7, nx, ny, nz, 2, scon2_avg)
+  call apply(scon(:,:,:,2), nx, ny, nz, 0, temp7)
+  call apply(temp7, nx, ny, nz, 1, temp8)
+  call apply(temp8, nx, ny, nz, 2, scon2_avg)
 
-  call apply(scon(:,:,:,3), nx, ny, nz, 0, temp8)
-  call apply(temp8, nx, ny, nz, 1, temp9)
-  call apply(temp9, nx, ny, nz, 2, scon3_avg)
+  call apply(scon(:,:,:,3), nx, ny, nz, 0, temp9)
+  call apply(temp9, nx, ny, nz, 1, temp10)
+  call apply(temp10, nx, ny, nz, 2, scon3_avg)
 
   ! this is a poly call
   call EOS_Omni_press(GRHydro_polytrope_handle,keytemp,GRHydro_eos_rf_prec,n,&
@@ -1936,6 +1941,7 @@ subroutine apply(data, nx, ny, nz, dirn, a_center_xyz)
 
   integer :: i, j, k, p, q, GRHydro_stencil
   integer, dimension(5,3) :: ijk
+  
 
   real*8, dimension(3,6) :: beta_shu
   real*8, dimension(3,5) ::  weno_coeffs_de_avg
@@ -1959,6 +1965,10 @@ subroutine apply(data, nx, ny, nz, dirn, a_center_xyz)
   temp_xyz = 0
   GRHydro_stencil = 3
   weno_eps = 1e-10
+
+  i = 0
+  j = 0
+  k = 0
   
   loopz: do k = GRHydro_stencil, nz - GRHydro_stencil+1 
       loopy: do j = GRHydro_stencil, ny - GRHydro_stencil+1 
@@ -1969,9 +1979,9 @@ subroutine apply(data, nx, ny, nz, dirn, a_center_xyz)
               case (0) !Solve by x-direction
                   ijk = reshape((/i-2, i-1, i, i+1, i+2, j, j, j, j, j, k, k, k, k, k/), shape(ijk))
               case (1) !Solve by y-direction
-                  ijk = reshape((/j, j, j, j, j, i-2, i-1, i, i+1, i+2, k, k, k, k, k/), shape(ijk))
+                  ijk = reshape((/i, i, i, i, i, j-2, j-1, j, j+1, j+2, k, k, k, k, k/), shape(ijk))
               case (2) !Solve by z-direction
-                  ijk = reshape((/k, k, k, k, k, j, j, j, j, j, i-2, i-1, i, i+1, i+2/), shape(ijk))
+                  ijk = reshape((/i, i, i, i, i, j, j, j, j, j, k-2, k-1, k, k+1, k+2/), shape(ijk))
               end select
 
               !Again, Cannot define functions inside a function in F90, so yet another convoluted way to do something simple

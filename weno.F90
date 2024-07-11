@@ -8,15 +8,15 @@ program weno
     !
 
     !Declare parameters and variables
-    real*8, dimension(10,10,10)::data_
+    real*8, dimension(12,12,12)::data_
     integer :: i, j, k, itracer, nx, ny, nz, GRHydro_stencil
     real*8 x0, y0, z0, dxyz, x, y, z, weno_eps
 
-    real*8, dimension(10, 10, 10):: temp1, temp2, a_center
+    real*8, dimension(12, 12, 12):: temp1, temp2, a_center
     
-    nx = 10
-    ny = 10
-    nz = 10
+    nx = 12
+    ny = 12
+    nz = 12
     x0 = 1.
     y0 = 1.
     z0 = 1.
@@ -115,14 +115,14 @@ subroutine apply(data, nx, ny, nz, dirn, a_center_xyz)
             loopx: do i = GRHydro_stencil, nx - GRHydro_stencil+1 
                 !This is in place of the definition of ijk[5] in weno.C++. F90 does not have ternary operators, so I had to do this in a complicated way
                 !If there's a better way to do this, please let me know
-                select case (dirn)
-                case (0) !Solve by x-direction
-                    ijk = reshape((/i-2, i-1, i, i+1, i+2, j, j, j, j, j, k, k, k, k, k/), shape(ijk))
-                case (1) !Solve by y-direction
-                    ijk = reshape((/j, j, j, j, j, i-2, i-1, i, i+1, i+2, k, k, k, k, k/), shape(ijk))
-                case (2) !Solve by z-direction
-                    ijk = reshape((/k, k, k, k, k, j, j, j, j, j, i-2, i-1, i, i+1, i+2/), shape(ijk))
-                end select
+            select case (dirn)
+            case (0) !Solve by x-direction
+                ijk = reshape((/i-2, i-1, i, i+1, i+2, j, j, j, j, j, k, k, k, k, k/), shape(ijk))
+            case (1) !Solve by y-direction
+                ijk = reshape((/i, i, i, i, i, j-2, j-1, j, j+1, j+2, k, k, k, k, k/), shape(ijk))
+            case (2) !Solve by z-direction
+                ijk = reshape((/i, i, i, i, i, j, j, j, j, j, k-2, k-1, k, k+1, k+2/), shape(ijk))
+            end select
 
                 !Again, Cannot define functions inside a function in F90, so yet another convoluted way to do something simple
                 A0 = data(ijk(1, 1), ijk(1,2), ijk(1, 3))
